@@ -9,47 +9,40 @@ Game.Level2 = {
 
   init(){
     this.eggsGot=0; this.hintCd=0;
-        this.platforms=[
+    this.platforms=[
       // полы с провалами
       {x:0,y:1330,w:800,h:70,type:'ground'},        // 0
       {x:1100,y:1330,w:650,h:70,type:'ground'},     // 1
       {x:2100,y:1330,w:700,h:70,type:'ground'},     // 2
       {x:3200,y:1330,w:800,h:70,type:'ground'},     // 3
       {x:4400,y:1330,w:1200,h:70,type:'ground'},    // 4
-      
-      // насесты (подъём — с меньшими промежутками)
-      {x:250,y:1220,w:150,h:16,type:'wood'},        // 5
-      {x:500,y:1130,w:150,h:16,type:'wood'},        // 6
-      {x:760,y:1040,w:160,h:16,type:'wood'},        // 7
-      {x:1040,y:950,w:170,h:16,type:'wood'},        // 8
-      
+      // насесты (подъём)
+      {x:250,y:1200,w:150,h:16,type:'wood'},        // 5
+      {x:500,y:1090,w:150,h:16,type:'wood'},        // 6
+      {x:760,y:980,w:160,h:16,type:'wood'},         // 7
+      {x:1040,y:880,w:170,h:16,type:'wood'},        // 8
       // лифт-зона
-      {x:1500,y:870,w:180,h:16,type:'wood'},        // 9
+      {x:1500,y:820,w:180,h:16,type:'wood'},        // 9
       // лифт вертикальный
-      {x:1750,y:1200,w:110,h:16,type:'moving',axis:'y',min:870,max:1200,speed:.02}, // 10
-      {x:2000,y:870,w:180,h:16,type:'wood'},        // 11
-      
+      {x:1750,y:1200,w:110,h:16,type:'moving',axis:'y',min:760,max:1200,speed:.02}, // 10
+      {x:2000,y:760,w:180,h:16,type:'wood'},        // 11
       // спуск
-      {x:2280,y:970,w:160,h:16,type:'wood'},        // 12
-      {x:2540,y:1080,w:160,h:16,type:'wood'},       // 13
-      {x:2800,y:1200,w:160,h:16,type:'wood'},       // 14
-      
+      {x:2280,y:880,w:160,h:16,type:'wood'},        // 12
+      {x:2540,y:1010,w:160,h:16,type:'wood'},       // 13
+      {x:2800,y:1150,w:160,h:16,type:'wood'},       // 14
       // телега горизонтальная
       {x:3050,y:1250,w:120,h:16,type:'moving',axis:'x',min:3050,max:3450,speed:.025}, // 15
-      
-      // подъём на чердак (плавнее)
-      {x:3600,y:1160,w:160,h:16,type:'wood'},       // 16
-      {x:3860,y:1050,w:160,h:16,type:'wood'},       // 17
+      // подъём на чердак
+      {x:3600,y:1180,w:160,h:16,type:'wood'},       // 16
+      {x:3860,y:1060,w:160,h:16,type:'wood'},       // 17
       {x:4120,y:940,w:160,h:16,type:'wood'},        // 18
-      {x:4380,y:830,w:160,h:16,type:'wood'},        // 19
-      {x:4640,y:720,w:160,h:16,type:'wood'},        // 20
-      {x:4900,y:610,w:160,h:16,type:'wood'},        // 21
-      
+      {x:4380,y:820,w:160,h:16,type:'wood'},        // 19
+      {x:4640,y:700,w:160,h:16,type:'wood'},        // 20
+      {x:4900,y:580,w:160,h:16,type:'wood'},        // 21
       // второй лифт
-      {x:5150,y:720,w:110,h:16,type:'moving',axis:'y',min:480,max:720,speed:.02}, // 22
-      
+      {x:5150,y:700,w:110,h:16,type:'moving',axis:'y',min:420,max:700,speed:.02}, // 22
       // финал
-      {x:5300,y:520,w:300,h:16,type:'wood'}         // 23
+      {x:5300,y:460,w:300,h:16,type:'wood'}         // 23
     ];
     this.spawn={x:60,y:this.platforms[0].y-Game.Config.PLAYER_H};
     this.finish={x:5400,y:460,w:80,h:100};

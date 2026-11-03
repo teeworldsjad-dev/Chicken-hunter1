@@ -16,11 +16,11 @@ G.haptic = function(type){
 G.Config = {
   VISIBLE_H: 420,
   GRAVITY: 0.55,
-  MOVE: 4,
-  JUMP: 16,
+  MOVE: 3.6,
+  JUMP: 12,
   PLAYER_W: 34,
   PLAYER_H: 60,
-  MAX_HP: 4,
+  MAX_HP: 3,
   INVULN: 90,
   WEAPONS: {
     rifle:  {pellets:5, spread:.14, speed:9,  life:26, dmg:1, cd:32, recoil:6, shake:6},
@@ -760,7 +760,7 @@ G.Game = {
   },
   loadLevel(n){
     this.levelNum=n;
-    this.current = n===1?G.Level1:(n===2?G.Level2:G.Level3);
+    this.current = n===1?G.Level1:G.Level2;
     if(!this.current){console.error('Нет уровня',n);return;}
     this.current.init();
     G.Camera.setBounds(this.current.width,this.current.height);
@@ -776,11 +776,7 @@ G.Game = {
     this.startTime=Date.now(); this.state='playing';
     G.Player.say();
   },
-    nextLevel(){ 
-    if(this.levelNum===1) this.start(G.Player.character,2); 
-    else if(this.levelNum===2) this.start(G.Player.character,3);
-    else this.win(); 
-  },
+  nextLevel(){ if(this.levelNum===1) this.start(G.Player.character,2); else this.win(); },
   gameOver(){
     if(this.state!=='playing')return; this.state='gameover';
     G.Audio.gameover(); G.UI.strangleBtn(false);
@@ -840,7 +836,7 @@ G.Game = {
     if(p.character==='alena'&&!p.isStrangling()&&this.state==='playing')
       t=G.Enemies.getStrangleTarget(p);
     p.strangleTarget=t; G.UI.strangleBtn(!!t); G.UI.hud();
-    if(this.current.checkWin(p)) this.nextLevel();
+    if(this.current.checkWin(p)) this.levelNum===1?this.nextLevel():this.win();
   },
   draw(){
     const ctx=this.ctx;
