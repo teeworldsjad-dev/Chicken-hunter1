@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<title>Курятник</title>
+<style>
+  *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+  html,body{width:100%;height:100%;overflow:hidden;background:#111;
+    font-family:-apple-system,system-ui,sans-serif;touch-action:none;
+    user-select:none;-webkit-user-select:none;-webkit-touch-callout:none}
+  canvas{display:block;position:absolute;inset:0}
+
+  /* HUD */
+  #hud{position:absolute;top:calc(8px + env(safe-area-inset-top));left:12px;
+    color:#fff;font:bold 15px sans-serif;text-shadow:2px 2px 4px #000;
+    pointer-events:none;z-index:10;line-height:1.5}
+  #hud .hearts{font-size:18px;letter-spacing:2px}
+  #hud .small{font-size:12px;opacity:.85}
+
+  /* Реплика и комбо */
+  #replica{position:absolute;top:calc(64px + env(safe-area-inset-top));left:50%;
+    transform:translateX(-50%);background:rgba(0,0,0,.72);color:#fff;
+    padding:9px 18px;border-radius:20px;font-size:16px;font-weight:bold;
+    pointer-events:none;opacity:0;transition:opacity .25s;z-index:15;
+    max-width:80%;text-align:center;white-space:nowrap}
+  #replica.show{opacity:1}
+  #combo{position:absolute;top:42%;left:50%;transform:translate(-50%,-50%) scale(.5);
+    color:#ff3b30;font:bold 44px sans-serif;text-shadow:3px 3px 0 #000;
+    pointer-events:none;opacity:0;z-index:16}
+  #combo.show{animation:cp .8s ease-out}
+  @keyframes cp{0%{opacity:0;transform:translate(-50%,-50%) scale(.4)}
+    25%{opacity:1;transform:translate(-50%,-50%) scale(1.2)}
+    70%{opacity:1;transform:translate(-50%,-60%) scale(1)}
+    100%{opacity:0;transform:translate(-50%,-80%) scale(.9)}}
+
+  /* Кнопки управления */
+  .btn{position:absolute;width:72px;height:72px;border-radius:50%;
+    background:rgba(255,255,255,.18);border:2px solid rgba(255,255,255,.4);
+    display:flex;align-items:center;justify-content:center;font-size:30px;
+    color:#fff;z-index:20;touch-action:none;transition:background .08s,transform .08s}
+  .btn.on{background:rgba(255,255,255,.45);transform:scale(.94)}
+  #bLeft  {left:calc(16px + env(safe-area-inset-left));bottom:calc(24px + env(safe-area-inset-bottom))}
+  #bRight {left:calc(102px + env(safe-area-inset-left));bottom:calc(24px + env(safe-area-inset-bottom))}
+  #bJump  {left:calc(59px + env(safe-area-inset-left));bottom:calc(108px + env(safe-area-inset-bottom));width:62px;height:62px;font-size:24px}
+  #bShoot {right:calc(16px + env(safe-area-inset-right));bottom:calc(24px + env(safe-area-inset-bottom));width:84px;height:84px;font-size:36px}
+  #bStrangle{right:calc(112px + env(safe-area-inset-right));bottom:calc(32px + env(safe-area-inset-bottom));
+    display:none;background:rgba(220,40,40,.35);border-color:rgba(255,120,120,.7)}
+  #bStrangle.visible{display:flex;animation:pulse 1s infinite}
+  @keyframes pulse{0%,100%{transform:scale(1)}50%{transform:scale(1.08)}}
+
+  /* Меню и оверлей */
+  #menu,#overlay{position:absolute;inset:0;background:rgba(0,0,0,.88);
+    display:flex;flex-direction:column;align-items:center;justify-content:center;
+    color:#fff;text-align:center;z-index:100;padding:16px;overflow-y:auto}
+  #menu h1,#overlay h1{font-size:34px;margin-bottom:8px;text-shadow:3px 3px 6px #000}
+  #menu .sub{font-size:14px;color:#aaa;margin-bottom:18px}
+  .cards{display:flex;gap:16px;flex-wrap:wrap;justify-content:center}
+  .card{background:rgba(255,255,255,.08);border:3px solid rgba(255,255,255,.2);
+    border-radius:15px;padding:16px;width:230px;cursor:pointer;transition:all .2s}
+  .card:active{transform:scale(.97)}
+  .card.sel{background:rgba(76,175,80,.25);border-color:#4CAF50}
+  .card img{width:104px;height:104px;border-radius:50%;object-fit:cover;
+    margin:0 auto 10px;display:block;border:3px solid rgba(255,255,255,.3);background:#333}
+  .card.sel img{border-color:#4CAF50;box-shadow:0 0 20px rgba(76,175,80,.6)}
+  .card h2{font-size:21px;margin-bottom:3px;color:#4CAF50}
+  .card .role{font-size:13px;color:#ccc;font-style:italic;margin-bottom:8px}
+  .card .fact{font-size:12px;color:#ddd;text-align:left;background:rgba(0,0,0,.4);
+    padding:8px;border-radius:8px;line-height:1.4}
+  .card .fact::before{content:"💡 "}
+  .bigbtn{margin-top:18px;padding:13px 36px;font-size:19px;font-weight:bold;
+    background:#4CAF50;color:#fff;border:none;border-radius:10px;
+    box-shadow:0 4px 0 #2E7D32;cursor:pointer}
+  .bigbtn:disabled{background:#555;box-shadow:0 4px 0 #333}
+  .bigbtn:active:not(:disabled){transform:translateY(2px);box-shadow:0 2px 0 #2E7D32}
+  #overlay p{font-size:17px;margin:6px;color:#ddd}
+  .hidden{display:none!important}
+
+  #rotate{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);
+    background:rgba(0,0,0,.75);color:#fff;padding:12px 20px;border-radius:12px;
+    font-size:14px;z-index:50;display:none;pointer-events:none}
+  @media (orientation:portrait) and (max-width:820px){#rotate.on{display:block}}
+</style>
+</head>
+<body>
+
+<canvas id="game"></canvas>
+
+<div id="hud">
+  <div><span id="charName">—</span> · <span id="score">0</span></div>
+  <div class="hearts" id="hearts">❤️❤️❤️</div>
+  <div class="small">🐔<span id="kc">0</span> 🪿<span id="kg">0</span> ✊<span id="ks">0</span> <span id="lvl"></span></div>
+</div>
+
+<div id="replica"></div>
+<div id="combo"></div>
+<div id="rotate">📱 Поверни телефон горизонтально</div>
+
+<div id="bLeft" class="btn">◀</div>
+<div id="bRight" class="btn">▶</div>
+<div id="bJump" class="btn">▲</div>
+<div id="bShoot" class="btn">🔫</div>
+<div id="bStrangle" class="btn">✊</div>
+
+<div id="menu">
+  <h1>🐔 КУРЯТНИК 🪿</h1>
+  <div class="sub">← → двигаться · ↑ прыжок · 🔫 стрелять · ✊ душить</div>
+  <div class="cards">
+    <div class="card" data-char="misha">
+      <img src="assets/misha_menu.jpg" alt="Миша">
+      <h2>МИША</h2>
+      <div class="role">Куриный охотник · дробовик</div>
+      <div class="fact">Приезжает в деревню исключительно ради убийства куриц</div>
+    </div>
+    <div class="card" data-char="alena">
+      <img src="assets/alena_menu.jpg" alt="Алёна">
+      <h2>АЛЁНА</h2>
+      <div class="role">Страх всех куриц · удушение</div>
+      <div class="fact">Первую курицу задушила в 7 лет. Вспоминает этот день как лучший в жизни</div>
+    </div>
+  </div>
+  <button id="startBtn" class="bigbtn" disabled>▶️ НАЧАТЬ ОХОТУ</button>
+</div>
+
+<div id="overlay" class="hidden">
+  <h1 id="ovTitle">—</h1>
+  <p id="ovText">—</p>
+  <button id="ovBtn" class="bigbtn">🔄 ЗАНОВО</button>
+</div>
+
+<!-- Telegram WebApp -->
+<script src="https://telegram.org/js/telegram-web-app.js"></script>
+<!-- Движок -->
+<script src="game.js"></script>
+<!-- Заменяемые уровни -->
+<script src="levels/level1.js"></script>
+<script src="levels/level2.js"></script>
+<script src="levels/level3.js"></script>
+<!-- Запуск -->
+<script>
+  function boot(){
+    if (typeof Game === 'undefined' || !Game.Game) {
+      console.error('❌ game.js не загрузился! Проверь путь к файлу.');
+      return;
+    }
+    Game.Game.init();
+  }
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', boot);
+  } else {
+    boot();
+  }
+</script>
+
+</body>
+</html>
