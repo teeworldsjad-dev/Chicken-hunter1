@@ -16,11 +16,11 @@ G.haptic = function(type){
 G.Config = {
   VISIBLE_H: 420,
   GRAVITY: 0.55,
-  MOVE: 3.6,
-  JUMP: 12,
+  MOVE: 4,
+  JUMP: 16,
   PLAYER_W: 34,
   PLAYER_H: 60,
-  MAX_HP: 3,
+  MAX_HP: 5,
   INVULN: 90,
   WEAPONS: {
     rifle:  {pellets:5, spread:.14, speed:9,  life:26, dmg:1, cd:32, recoil:6, shake:6},
